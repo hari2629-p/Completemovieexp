@@ -1,0 +1,182 @@
+/* ============================================
+   SurveyPage — Styles
+   ============================================ */
+
+.survey-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px 60px;
+}
+
+.survey-container {
+  width: 100%;
+  max-width: 720px;
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  box-shadow: var(--shadow-lg);
+}
+
+/* ---- Progress ---- */
+.survey-progress {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.survey-progress .progress-bar {
+  flex: 1;
+}
+
+.progress-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ---- Header ---- */
+.survey-header {
+  margin-bottom: 32px;
+}
+
+.survey-title {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.survey-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+/* ---- Step Content ---- */
+.step-content {
+  min-height: 280px;
+}
+
+/* ---- Coping Grid ---- */
+.coping-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.coping-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  transition: border-color var(--transition);
+}
+
+.coping-row:hover {
+  border-color: var(--border-bright);
+}
+
+.coping-emotion {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 130px;
+}
+
+.coping-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.coping-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: all var(--transition);
+  color: var(--text-secondary);
+  min-width: 130px;
+}
+
+.coping-btn:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+  background: rgba(139, 92, 246, 0.08);
+}
+
+.coping-btn.active {
+  background: rgba(139, 92, 246, 0.18);
+  border-color: var(--purple);
+  color: var(--text-primary);
+}
+
+.coping-btn-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.coping-btn-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ---- Chip Grid ---- */
+.chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 12px;
+}
+
+.hint-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 12px;
+  text-align: center;
+  font-style: italic;
+}
+
+/* ---- Survey Nav ---- */
+.survey-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+  .survey-container {
+    padding: 28px 20px;
+  }
+
+  .coping-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .coping-options {
+    width: 100%;
+  }
+
+  .coping-btn {
+    flex: 1;
+    min-width: unset;
+  }
+}

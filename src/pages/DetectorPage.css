@@ -1,0 +1,256 @@
+/* ============================================
+   DetectorPage — Styles
+   ============================================ */
+
+.detector-page {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 24px 60px;
+}
+
+.detector-content {
+  width: 100%;
+  max-width: 800px;
+}
+
+/* ---- Header ---- */
+.detector-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.detector-title {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.detector-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+/* ---- Loading ---- */
+.detector-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 60px 0;
+}
+
+.loading-text {
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+/* ---- Camera ---- */
+.camera-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 2px solid var(--border-bright);
+  box-shadow: 0 0 40px rgba(139, 92, 246, 0.2);
+  aspect-ratio: 4 / 3;
+}
+
+.camera-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scaleX(-1); /* mirror */
+}
+
+.detection-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(-1); /* mirror to match video */
+  pointer-events: none;
+}
+
+/* ---- Live Emotion Overlay ---- */
+.live-emotion-overlay {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(7, 11, 20, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+}
+
+.live-emoji {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.live-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 120px;
+}
+
+.live-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.confidence-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.confidence-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--gradient-main);
+  transition: width 0.5s ease;
+}
+
+.confidence-pct {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ---- Camera Actions ---- */
+.camera-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.confirm-btn {
+  font-size: 16px;
+  padding: 14px 36px;
+}
+
+/* ---- Manual Picker ---- */
+.manual-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.camera-error-banner {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-md);
+  padding: 12px 20px;
+  font-size: 14px;
+  color: #fca5a5;
+  width: 100%;
+  max-width: 560px;
+  text-align: center;
+}
+
+.manual-instruction {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.mood-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 14px;
+  width: 100%;
+  max-width: 640px;
+}
+
+.mood-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 16px;
+  background: rgba(17, 24, 39, 0.7);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition);
+  color: var(--text-primary);
+}
+
+.mood-btn:hover {
+  border-color: var(--border-bright);
+  background: rgba(139, 92, 246, 0.12);
+  box-shadow: var(--shadow-glow);
+}
+
+.mood-emoji {
+  font-size: 38px;
+  line-height: 1;
+}
+
+.mood-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ---- Confirmed State ---- */
+.confirmed-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 40px 20px;
+}
+
+.confirmed-emoji {
+  font-size: 90px;
+  line-height: 1;
+  filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.5));
+  animation: float 3s ease-in-out infinite;
+}
+
+.confirmed-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+  .detector-title {
+    font-size: 24px;
+  }
+
+  .mood-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .mood-btn {
+    padding: 16px 8px;
+  }
+
+  .mood-emoji {
+    font-size: 28px;
+  }
+}
