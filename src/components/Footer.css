@@ -7,9 +7,15 @@
 
 .footer-inner {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr;
+  grid-template-columns: 1.5fr 2.5fr; /* Brand takes 1.5, Links take 2.5 */
   gap: 60px;
   margin-bottom: 60px;
+}
+
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
 }
 
 .footer-brand {
@@ -94,15 +100,15 @@
 
 @media (max-width: 992px) {
   .footer-inner {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 40px;
   }
 }
 
 @media (max-width: 600px) {
-  .footer-inner {
+  .footer-links {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 32px;
   }
   
   .footer {

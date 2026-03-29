@@ -19,27 +19,29 @@ function Footer() {
 
           <div className="footer-links">
             <div className="footer-group">
-              <h4 className="footer-heading">Platform</h4>
-              <a href="#how-it-works" className="footer-link">How it Works</a>
-              <a href="/detect" className="footer-link">Detect Mood</a>
-              <a href="/survey" className="footer-link">Preferences</a>
+              <h4 className="footer-heading">Features</h4>
+              <a href="/#how-it-works" className="footer-link">How it Works</a>
+              <a href="/detect" className="footer-link">Emotion Scanner</a>
+              <a href="/survey" className="footer-link">Manual Setup</a>
             </div>
             <div className="footer-group">
               <h4 className="footer-heading">Legal</h4>
               <a href="#" className="footer-link">Privacy Policy</a>
-              <a href="#" className="footer-link">Terms of Service</a>
+              <a href="#" className="footer-link" onClick={e => e.preventDefault()}>Terms of Service</a>
             </div>
-          </div>
-
-          <div className="footer-attribution">
-            <img 
-              src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_2-d537fb228cf3ded904ef09b136fe3fec72548ebc1fea3fbbd1ad9e36364db38b.svg" 
-              alt="TMDB Logo" 
-              className="tmdb-logo"
-            />
-            <p className="attribution-text">
-              This product uses the TMDB API but is not endorsed or certified by TMDB.
-            </p>
+            <div className="footer-group">
+              <h4 className="footer-heading">Powered By</h4>
+              <div className="footer-attribution">
+                <img 
+                  src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_2-d537fb228cf3ded904ef09b136fe3fec72548ebc1fea3fbbd1ad9e36364db38b.svg" 
+                  alt="TMDB Logo" 
+                  className="tmdb-logo"
+                />
+                <p className="attribution-text">
+                  Data provided by the TMDB API. Not endorsed or certified.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
