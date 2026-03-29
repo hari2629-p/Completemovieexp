@@ -74,6 +74,24 @@ export async function getMovieWatchProviders(movieId) {
 }
 
 /**
+ * Fetch detailed movie info including runtime, watch providers, and reviews
+ */
+export async function getMovieDetailedInfo(movieId) {
+  const { data } = await tmdb.get(`/movie/${movieId}`, {
+    params: {
+      append_to_response: 'watch/providers,reviews'
+    }
+  })
+  
+  return {
+    runtime: data.runtime,
+    watchProviders: data['watch/providers']?.results?.IN || data['watch/providers']?.results?.US || null,
+    reviews: data.reviews?.results || [],
+    overview: data.overview
+  }
+}
+
+/**
  * Search movies by query
  */
 export async function searchMovies(query, language = 'en') {
