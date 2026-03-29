@@ -72,7 +72,15 @@ function RecommendationsPage({ preferences, detectedMood }) {
       setTotalPages(data.total_pages || 1)
       setError(null)
     } catch (err) {
-      setError('Could not fetch movies. Check your TMDB API key in .env and try again.')
+      console.error("TMDB Fetch Error:", err)
+      
+      if (err.response?.status === 401) {
+         setError('Authentication failed. The TMDB API key in .env is missing or invalid.')
+      } else if (err.message === 'Network Error' || err.code === 'ERR_NETWORK') {
+         setError('Network Error: Could not reach TMDB. Your ISP or Ad-Blocker might be blocking the connection.')
+      } else {
+         setError(`Failed to load movies: ${err.message || 'Unknown network error'}`)
+      }
     } finally {
       setLoading(false)
       setLoadingMore(false)
