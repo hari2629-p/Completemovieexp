@@ -111,9 +111,9 @@ function MovieCard({ movie, relevanceScore, coping, index = 0 }) {
       {/* Back */}
       <div className="card-face card-back">
         <div className="card-back-content">
-          <h3 className="card-title-back gradient-text">{movie.title}</h3>
+          <h3 className="card-title-back gradient-text" style={{ flexShrink: 0 }}>{movie.title}</h3>
 
-          <div className="score-display" style={{ '--score-color': scoreColor }}>
+          <div className="score-display" style={{ '--score-color': scoreColor, flexShrink: 0 }}>
             <div className="score-ring">
               <svg viewBox="0 0 64 64" className="score-svg">
                 <circle cx="32" cy="32" r="28" className="score-track" />
@@ -136,8 +136,8 @@ function MovieCard({ movie, relevanceScore, coping, index = 0 }) {
             </p>
           </div>
           
-          <div className="card-back-scrollable" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px', margin: '4px 0' }}>
-            <p className="card-overview-back">{shortOverview}</p>
+          <div className="card-back-scrollable" style={{ flex: '1 1 auto', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px', margin: '4px 0', minHeight: 0 }}>
+            <p className="card-overview-back" style={{ flexShrink: 0 }}>{shortOverview}</p>
 
             <div className="card-review-box">
               {loadingReview ? (
@@ -193,25 +193,25 @@ function MovieCard({ movie, relevanceScore, coping, index = 0 }) {
           </div>
         </div>
 
-        <div className="card-back-meta">
+        <div className="card-back-meta" style={{ flexShrink: 0 }}>
             <span>📅 {releaseYear}</span>
             <span>⭐ {rating}/10</span>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', marginTop: 'auto', flexShrink: 0 }}>
+          <div style={{ display: 'flex', gap: '8px', marginTop: 'auto', flexShrink: 0, paddingBottom: '4px' }}>
             <a
               href={`https://www.youtube.com/results?search_query=${encodeURIComponent(`${movie.title} ${releaseYear} trailer`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-primary"
-              style={{ flex: 1, justifyContent: 'center', fontSize: '13px', padding: '10px 4px' }}
+              style={{ flex: 1, justifyContent: 'center', fontSize: '13px', padding: '10px 4px', minHeight: '38px', boxSizing: 'border-box' }}
               onClick={e => e.stopPropagation()}
             >
               Trailer 🎥
             </a>
             <button
               className="btn btn-secondary"
-              style={{ flex: 1, justifyContent: 'center', fontSize: '13px', padding: '10px 4px' }}
+              style={{ flex: 1, justifyContent: 'center', fontSize: '13px', padding: '10px 4px', minHeight: '38px', boxSizing: 'border-box' }}
               onClick={(e) => {
                 e.stopPropagation()
                 setFlipped(false)
