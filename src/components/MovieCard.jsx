@@ -136,34 +136,35 @@ function MovieCard({ movie, relevanceScore, coping, index = 0 }) {
             </p>
           </div>
           
-          <p className="card-overview-back">{shortOverview}</p>
+          <div className="card-back-scrollable" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px', margin: '4px 0' }}>
+            <p className="card-overview-back">{shortOverview}</p>
 
-          <div className="card-review-box">
-            {loadingReview ? (
-              <p className="review-loading">Loading review...</p>
-            ) : review && !review.empty ? (
-              <>
-                <p className="review-author">💬 <strong>{review.author}</strong> says:</p>
-                <p className="review-content">
-                  "{review.content.length > 120 ? review.content.slice(0, 120) + '...' : review.content}"
-                </p>
-                {review.content.length > 120 && (
-                  <a
-                    href={review.url || `https://www.themoviedb.org/movie/${movie.id}/reviews`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="review-read-more"
-                    style={{ fontSize: '0.8rem', color: 'var(--color-primary)', textDecoration: 'underline', marginTop: '4px', display: 'inline-block' }}
-                    onClick={e => e.stopPropagation()}
-                  >
-                    Read full review
-                  </a>
-                )}
-              </>
-            ) : (
-              <p className="review-loading">No reviews yet, but it might be just what you need! ✨</p>
-            )}
-          </div>
+            <div className="card-review-box">
+              {loadingReview ? (
+                <p className="review-loading">Loading review...</p>
+              ) : review && !review.empty ? (
+                <>
+                  <p className="review-author">💬 <strong>{review.author}</strong> says:</p>
+                  <p className="review-content">
+                    "{review.content.length > 120 ? review.content.slice(0, 120) + '...' : review.content}"
+                  </p>
+                  {review.content.length > 120 && (
+                    <a
+                      href={review.url || `https://www.themoviedb.org/movie/${movie.id}/reviews`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="review-read-more"
+                      style={{ fontSize: '0.8rem', color: 'var(--color-primary)', textDecoration: 'underline', marginTop: '4px', display: 'inline-block' }}
+                      onClick={e => e.stopPropagation()}
+                    >
+                      Read full review
+                    </a>
+                  )}
+                </>
+              ) : (
+                <p className="review-loading">No reviews yet, but it might be just what you need! ✨</p>
+              )}
+            </div>
 
           <div className="card-providers">
             {loadingProviders ? (
@@ -171,7 +172,12 @@ function MovieCard({ movie, relevanceScore, coping, index = 0 }) {
             ) : providers && !providers.empty ? (
               <div className="providers-list">
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-subtle)', marginRight: '8px' }}>Watch on:</span>
-                {(providers.flatrate || providers.rent || providers.buy || []).slice(0, 4).map(provider => (
+                {Array.from(new Map([
+                    ...(providers.flatrate || []),
+                    ...(providers.rent || []),
+                    ...(providers.buy || [])
+                  ].map(p => [p.provider_id, p])).values()
+                ).slice(0, 4).map(provider => (
                   <img
                     key={provider.provider_id}
                     src={`${IMAGE_BASE}${provider.logo_path}`}
@@ -185,32 +191,33 @@ function MovieCard({ movie, relevanceScore, coping, index = 0 }) {
               <p className="provider-loading" style={{ fontSize: '0.8rem', color: 'var(--text-subtle)', margin: '4px 0' }}>Not streaming locally</p>
             )}
           </div>
+        </div>
 
-          <div className="card-back-meta">
+        <div className="card-back-meta">
             <span>📅 {releaseYear}</span>
             <span>⭐ {rating}/10</span>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
+          <div style={{ display: 'flex', gap: '8px', marginTop: 'auto', flexShrink: 0 }}>
             <a
               href={`https://www.youtube.com/results?search_query=${encodeURIComponent(`${movie.title} ${releaseYear} trailer`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-primary"
-              style={{ flex: 1, justifyContent: 'center', fontSize: '13px', padding: '10px' }}
+              style={{ flex: 1, justifyContent: 'center', fontSize: '13px', padding: '10px 4px' }}
               onClick={e => e.stopPropagation()}
             >
-              Watch Trailer 🎥
+              Trailer 🎥
             </a>
             <button
               className="btn btn-secondary"
-              style={{ flex: 1, justifyContent: 'center', fontSize: '13px', padding: '10px' }}
+              style={{ flex: 1, justifyContent: 'center', fontSize: '13px', padding: '10px 4px' }}
               onClick={(e) => {
                 e.stopPropagation()
                 setFlipped(false)
               }}
             >
-              Try Another 🔄
+              Next 🔄
             </button>
           </div>
         </div>
