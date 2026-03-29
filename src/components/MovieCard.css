@@ -313,6 +313,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap; /* CRITICAL: Prevent 10+ providers from breaking mobile screens horizontally */
 }
 
 .provider-msg {
@@ -344,7 +345,8 @@
   
   .movie-card-wrapper.is-expanded-wrapper .movie-card-content {
     border-radius: var(--radius-md) var(--radius-md) 0 0;
-    transform: scale(1.02); /* Gentle pop */
+    transform: translateY(-4px); /* Changed from scale() to prevent horizontal bleed on strict mobile width */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   }
 
   /* Don't hide title and match badge on mobile since they sit on the poster */
@@ -361,9 +363,9 @@
     border: none !important;
     animation: none;
     opacity: 1;
-    transform: none;
+    transform: translateY(-4px);
     height: auto;
-    box-shadow: none;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   }
   
   .panel-title {

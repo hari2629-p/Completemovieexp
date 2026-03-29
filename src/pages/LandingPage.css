@@ -33,7 +33,7 @@
 }
 
 .hero-title {
-  font-size: clamp(60px, 9vw, 100px);
+  font-size: clamp(40px, 12vw, 100px); /* Lowered base from 60px to 40px to prevent horizontal bleed on narrow phones */
   font-weight: 900;
   line-height: 1.05;
   letter-spacing: -3px;

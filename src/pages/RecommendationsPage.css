@@ -116,7 +116,17 @@
   background: var(--bg-card);
 }
 
-/* ---- Error State ---- */
+/* ---- Mobile Grid Responsiveness ---- */
+@media (max-width: 600px) {
+  .movie-grid, .skeleton-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+  }
+  .skeleton-card {
+    height: 220px;
+  }
+}
+
 .recs-error {
   display: flex;
   flex-direction: column;

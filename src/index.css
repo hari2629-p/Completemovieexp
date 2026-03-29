@@ -256,6 +256,12 @@ a {
   padding: 0 24px;
 }
 
+@media (max-width: 600px) {
+  .container {
+    padding: 0 16px;
+  }
+}
+
 /* ---- Selection ---- */
 ::selection {
   background: rgba(139, 92, 246, 0.35);
