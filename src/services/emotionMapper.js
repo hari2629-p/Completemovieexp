@@ -82,26 +82,17 @@ export const EMOTION_COLOR = {
  * Get TMDB genre IDs for a mood + preference combination
  * @param {string} emotion - detected emotion key
  * @param {string} copingStyle - 'uplift' | 'match'
- * @param {string[]} preferredGenres - user's preferred genre names
  * @returns {number[]} array of TMDB genre IDs
  */
-export function getGenreIdsForMood(emotion, copingStyle, preferredGenres = []) {
+export function getGenreIdsForMood(emotion, copingStyle) {
   const mood = emotion?.toLowerCase() || 'neutral'
   const style = copingStyle || 'uplift'
   const moodGenres = EMOTION_GENRE_MAP[mood]?.[style] || EMOTION_GENRE_MAP.neutral.uplift
 
-  // Merge mood genres with user preferred genres (deduplicated)
-  const merged = [...new Set([...moodGenres, ...preferredGenres])]
-
   // Map to TMDB IDs, filter out unknowns
-  const ids = merged
+  const ids = moodGenres
     .map(name => GENRES[name])
     .filter(Boolean)
-
-  // Always return at least the top 3 mood genres
-  if (ids.length === 0) {
-    return moodGenres.slice(0, 3).map(n => GENRES[n]).filter(Boolean)
-  }
 
   return ids.slice(0, 5) // TMDB works best with ≤5 genre filters
 }
@@ -111,10 +102,9 @@ export function getGenreIdsForMood(emotion, copingStyle, preferredGenres = []) {
  * @param {object} movie        - TMDB movie object
  * @param {string} emotion      - detected emotion
  * @param {string} copingStyle  - 'uplift' | 'match'
- * @param {string[]} preferredGenres
  * @param {string[]} preferredLanguages
  */
-export function calcRelevanceScore(movie, emotion, copingStyle, preferredGenres = [], preferredLanguages = []) {
+export function calcRelevanceScore(movie, emotion, copingStyle, preferredLanguages = []) {
   let score = 40 // base
 
   const mood = emotion?.toLowerCase() || 'neutral'
@@ -123,19 +113,14 @@ export function calcRelevanceScore(movie, emotion, copingStyle, preferredGenres 
 
   const movieGenreIds = movie.genre_ids || []
   const moodGenreIds = moodGenres.map(n => GENRES[n]).filter(Boolean)
-  const prefGenreIds = preferredGenres.map(n => GENRES[n]).filter(Boolean)
 
-  // -- Genre overlap with mood genres (up to +25)
+  // -- Genre overlap with mood genres (up to +40)
   const moodMatches = movieGenreIds.filter(id => moodGenreIds.includes(id)).length
-  score += Math.min(moodMatches * 10, 25)
-
-  // -- Genre overlap with user preferred genres (up to +15)
-  const prefMatches = movieGenreIds.filter(id => prefGenreIds.includes(id)).length
-  score += Math.min(prefMatches * 8, 15)
+  score += Math.min(moodMatches * 15, 40)
 
   // -- Language match (up to +10)
   const LANG_CODE_MAP = {
-    English: 'en', Hindi: 'hi', Tamil: 'ta', Telugu: 'te',
+    English: 'en', Hindi: 'hi', Tamil: 'ta', Telugu: 'te', Malayalam: 'ml',
     Korean: 'ko', French: 'fr', Spanish: 'es', Japanese: 'ja',
   }
   const movieLang = movie.original_language

@@ -1,11 +1,31 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { IMAGE_BASE } from '../services/tmdbService'
+import { IMAGE_BASE, getMovieReviews } from '../services/tmdbService'
 import './MovieCard.css'
 
-function MovieCard({ movie, relevanceScore, index = 0 }) {
+function MovieCard({ movie, relevanceScore, coping, index = 0 }) {
   const [flipped, setFlipped] = useState(false)
   const [imgError, setImgError] = useState(false)
+  const [review, setReview] = useState(null)
+  const [loadingReview, setLoadingReview] = useState(false)
+
+  // Fetch review when card is flipped for the first time
+  useEffect(() => {
+    if (flipped && !review && !loadingReview) {
+      setLoadingReview(true)
+      getMovieReviews(movie.id)
+        .then(res => {
+          if (res && res.length > 0) {
+            setReview(res[0]) // Get top review
+          } else {
+            setReview({ empty: true })
+          }
+        })
+        .catch(() => setReview({ empty: true }))
+        .finally(() => setLoadingReview(false))
+    }
+  }, [flipped, movie.id, review, loadingReview])
+
 
   const posterUrl = movie.poster_path && !imgError
     ? `${IMAGE_BASE}${movie.poster_path}`
@@ -85,12 +105,42 @@ function MovieCard({ movie, relevanceScore, index = 0 }) {
                   }}
                 />
               </svg>
-              <span className="score-number">{relevanceScore}</span>
+              <span className="score-number">{relevanceScore}%</span>
             </div>
-            <p className="score-text">Emotional Match Score</p>
+            <p className="score-text">
+              We think this is an <strong>{relevanceScore}%</strong> match to{' '}
+              {coping === 'uplift' ? 'help uplift your spirits right now 💙' : 'resonate with how you\'re feeling 🪞'}
+            </p>
           </div>
+          
+          <p className="card-overview-back">{shortOverview}</p>
 
-          <p className="card-overview-back">{overview}</p>
+          <div className="card-review-box">
+            {loadingReview ? (
+              <p className="review-loading">Loading review...</p>
+            ) : review && !review.empty ? (
+              <>
+                <p className="review-author">💬 <strong>{review.author}</strong> says:</p>
+                <p className="review-content">
+                  "{review.content.length > 120 ? review.content.slice(0, 120) + '...' : review.content}"
+                </p>
+                {review.content.length > 120 && (
+                  <a
+                    href={review.url || `https://www.themoviedb.org/movie/${movie.id}/reviews`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="review-read-more"
+                    style={{ fontSize: '0.8rem', color: 'var(--color-primary)', textDecoration: 'underline', marginTop: '4px', display: 'inline-block' }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    Read full review
+                  </a>
+                )}
+              </>
+            ) : (
+              <p className="review-loading">No reviews yet, but it might be just what you need! ✨</p>
+            )}
+          </div>
 
           <div className="card-back-meta">
             <span>📅 {releaseYear}</span>

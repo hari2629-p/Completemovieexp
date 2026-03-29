@@ -16,12 +16,14 @@ export const IMAGE_BASE_ORIGINAL = 'https://image.tmdb.org/t/p/original'
  */
 export async function getMoviesByGenres({ genreIds, language = 'en', page = 1 }) {
   const langCode = LANGUAGE_CODES[language] || 'en-US'
+  const originalLang = ISO_LANG_CODES[language] || 'en'
   const { data } = await tmdb.get('/discover/movie', {
     params: {
-      with_genres: genreIds.join(','),
+      with_genres: genreIds.join('|'),
       language: langCode,
+      with_original_language: originalLang,
       sort_by: 'popularity.desc',
-      'vote_count.gte': 100,
+      'vote_count.gte': 10,
       page,
     },
   })
@@ -68,14 +70,34 @@ export async function searchMovies(query, language = 'en') {
   return data
 }
 
-// Language code map
+// Language code map (for translation)
 const LANGUAGE_CODES = {
-  English: 'en-US',
-  Hindi: 'hi-IN',
+  Malayalam: 'ml-IN',
   Tamil: 'ta-IN',
   Telugu: 'te-IN',
+  Hindi: 'hi-IN',
+  Kannada: 'kn-IN',
+  Marathi: 'mr-IN',
+  Bengali: 'bn-IN',
+  English: 'en-US',
   Korean: 'ko-KR',
   French: 'fr-FR',
   Spanish: 'es-ES',
   Japanese: 'ja-JP',
+}
+
+// ISO Language map (for filtering original language)
+const ISO_LANG_CODES = {
+  Malayalam: 'ml',
+  Tamil: 'ta',
+  Telugu: 'te',
+  Hindi: 'hi',
+  Kannada: 'kn',
+  Marathi: 'mr',
+  Bengali: 'bn',
+  English: 'en',
+  Korean: 'ko',
+  French: 'fr',
+  Spanish: 'es',
+  Japanese: 'ja',
 }

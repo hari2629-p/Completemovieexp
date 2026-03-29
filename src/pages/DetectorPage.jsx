@@ -19,7 +19,7 @@ const EMOTION_LABELS = {
 
 const MANUAL_MOODS = ['happy', 'sad', 'angry', 'surprised', 'fearful', 'disgusted', 'neutral']
 
-const DETECTION_INTERVAL_MS = 1000
+const DETECTION_INTERVAL_MS = 400
 const MODEL_URL = '/models'
 
 function DetectorPage({ onMoodDetected }) {
@@ -28,6 +28,10 @@ function DetectorPage({ onMoodDetected }) {
   const canvasRef = useRef(null)
   const streamRef = useRef(null)
   const intervalRef = useRef(null)
+  
+  // Smoothing and Auto-Confirm Refs
+  const emotionHistoryRef = useRef([]) 
+  const consecutiveMoodRef = useRef({ mood: null, count: 0 })
 
   const [phase, setPhase] = useState('loading') // loading | camera | manual | confirmed
   const [modelsLoaded, setModelsLoaded] = useState(false)
@@ -42,7 +46,7 @@ function DetectorPage({ onMoodDetected }) {
     async function loadModels() {
       try {
         await Promise.all([
-          faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+          faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
           faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
         ])
         if (!cancelled) setModelsLoaded(true)
@@ -56,6 +60,14 @@ function DetectorPage({ onMoodDetected }) {
     }
     loadModels()
     return () => { cancelled = true }
+  }, [])
+
+  const stopCamera = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current)
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop())
+      streamRef.current = null
+    }
   }, [])
 
   // Start camera once models loaded
@@ -86,15 +98,14 @@ function DetectorPage({ onMoodDetected }) {
       cancelled = true
       stopCamera()
     }
-  }, [modelsLoaded])
+  }, [modelsLoaded, stopCamera])
 
-  function stopCamera() {
-    if (intervalRef.current) clearInterval(intervalRef.current)
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(t => t.stop())
-      streamRef.current = null
-    }
-  }
+  const confirmMood = useCallback((mood) => {
+    stopCamera()
+    setConfirmed(mood)
+    setPhase('confirmed')
+    if (onMoodDetected) onMoodDetected(mood)
+  }, [stopCamera, onMoodDetected])
 
   // Detection loop
   const detect = useCallback(async () => {
@@ -103,15 +114,19 @@ function DetectorPage({ onMoodDetected }) {
     if (!video || !canvas || video.paused || video.ended || !modelsLoaded) return
 
     const result = await faceapi
-      .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+      .detectSingleFace(video, new faceapi.SsdMobilenetv1Options())
       .withFaceExpressions()
 
-    if (!result) return
+    const ctx = canvas.getContext('2d')
+    if (!result) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      consecutiveMoodRef.current = { mood: null, count: 0 }
+      return
+    }
 
     // Draw detection box
     const dims = faceapi.matchDimensions(canvas, video, true)
     const resized = faceapi.resizeResults(result, dims)
-    const ctx = canvas.getContext('2d')
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     // Draw box
@@ -125,22 +140,56 @@ function DetectorPage({ onMoodDetected }) {
     // Get top emotion
     const expressions = result.expressions
     const top = Object.entries(expressions).sort((a, b) => b[1] - a[1])[0]
-    setLiveEmotion(top[0])
-    setConfidence(Math.round(top[1] * 100))
-  }, [modelsLoaded])
+    const detectedEmotion = top[0]
+    const detectedConf = Math.round(top[1] * 100)
+
+    // Thresholding: Ignore low confidence expressions
+    if (detectedConf < 50) {
+      consecutiveMoodRef.current = { mood: null, count: 0 }
+      return
+    }
+
+    // Emotion Smoothing
+    const history = emotionHistoryRef.current
+    history.push(detectedEmotion)
+    if (history.length > 5) history.shift()
+
+    // Find dominant emotion in recent history
+    const counts = {}
+    let dominantEmotion = detectedEmotion
+    let maxCount = 0
+    history.forEach(e => {
+      counts[e] = (counts[e] || 0) + 1
+      if (counts[e] > maxCount) {
+        maxCount = counts[e]
+        dominantEmotion = e
+      }
+    })
+
+    setLiveEmotion(dominantEmotion)
+    setConfidence(detectedConf)
+
+    // Touchless Auto-Confirmation
+    if (detectedConf > 75) {
+      if (consecutiveMoodRef.current.mood === dominantEmotion) {
+        consecutiveMoodRef.current.count += 1
+        // Auto-confirm if held for ~2 seconds (5 ticks @ 400ms)
+        if (consecutiveMoodRef.current.count >= 5) {
+          confirmMood(dominantEmotion)
+        }
+      } else {
+        consecutiveMoodRef.current = { mood: dominantEmotion, count: 1 }
+      }
+    } else {
+      consecutiveMoodRef.current = { mood: null, count: 0 }
+    }
+  }, [modelsLoaded, confirmMood])
 
   useEffect(() => {
     if (phase !== 'camera') return
     intervalRef.current = setInterval(detect, DETECTION_INTERVAL_MS)
     return () => clearInterval(intervalRef.current)
   }, [phase, detect])
-
-  function confirmMood(mood) {
-    stopCamera()
-    setConfirmed(mood)
-    setPhase('confirmed')
-    onMoodDetected(mood)
-  }
 
   function goToRecs() {
     navigate('/recommendations')
@@ -175,10 +224,18 @@ function DetectorPage({ onMoodDetected }) {
 
           {/* Loading */}
           {phase === 'loading' && (
-            <div className="detector-loading">
+            <motion.div 
+              className="detector-loading"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
               <LoadingSpinner />
-              <p className="loading-text">Initializing face detection…</p>
-            </div>
+              <p className="loading-text">Loading AI models & initializing camera…</p>
+              <p style={{ fontSize: '0.85rem', opacity: 0.7, marginTop: '8px' }}>
+                This may take a few seconds on your first visit.
+              </p>
+            </motion.div>
           )}
 
           {/* Camera View */}

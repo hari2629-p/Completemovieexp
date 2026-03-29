@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { GENRES } from '../services/emotionMapper'
 import './SurveyPage.css'
 
 const EMOTIONS = ['happy', 'sad', 'angry', 'surprised', 'fearful', 'disgusted', 'neutral']
@@ -9,8 +8,7 @@ const EMOTION_LABELS = {
   happy: '😄 Happy', sad: '😢 Sad', angry: '😠 Angry', surprised: '😲 Surprised',
   fearful: '😨 Anxious', disgusted: '🤢 Disgusted', neutral: '😐 Neutral',
 }
-const ALL_GENRES = Object.keys(GENRES)
-const LANGUAGES = ['English', 'Hindi', 'Tamil', 'Telugu', 'Korean', 'French', 'Spanish', 'Japanese']
+const LANGUAGES = ['Malayalam', 'Tamil', 'Telugu', 'Hindi', 'Kannada', 'Marathi', 'Bengali', 'English', 'Korean', 'French', 'Spanish', 'Japanese']
 
 const DEFAULT_COPING = Object.fromEntries(EMOTIONS.map(e => [e, 'uplift']))
 
@@ -18,18 +16,12 @@ function SurveyPage({ onComplete }) {
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [coping, setCoping] = useState(DEFAULT_COPING)
-  const [genres, setGenres] = useState([])
-  const [languages, setLanguages] = useState(['English'])
+  const [languages, setLanguages] = useState(['Malayalam', 'Tamil', 'Telugu', 'Hindi'])
 
   const steps = [
     { title: 'Coping Style', subtitle: 'How do you like to react with movies for each emotion?' },
-    { title: 'Favorite Genres', subtitle: 'Select all genres you enjoy watching.' },
     { title: 'Languages', subtitle: 'Which languages do you prefer for your movies?' },
   ]
-
-  function toggleGenre(g) {
-    setGenres(prev => prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g])
-  }
 
   function toggleLanguage(l) {
     setLanguages(prev =>
@@ -40,7 +32,8 @@ function SurveyPage({ onComplete }) {
   }
 
   function handleSubmit() {
-    const prefs = { coping, genres: genres.length ? genres : ['Action', 'Comedy', 'Drama'], languages }
+    const finalLangs = languages.length > 0 ? languages : ['Malayalam', 'Tamil', 'Telugu', 'Hindi']
+    const prefs = { coping, languages: finalLangs }
     onComplete(prefs)
     navigate('/detect')
   }
@@ -101,26 +94,6 @@ function SurveyPage({ onComplete }) {
 
             {step === 1 && (
               <motion.div key="step1" className="step-content" {...slideProps}>
-                <div className="chip-grid">
-                  {ALL_GENRES.map(g => (
-                    <button
-                      key={g}
-                      className={`chip ${genres.includes(g) ? 'active' : ''}`}
-                      onClick={() => toggleGenre(g)}
-                    >
-                      {genres.includes(g) ? '✓ ' : ''}
-                      {g}
-                    </button>
-                  ))}
-                </div>
-                {genres.length === 0 && (
-                  <p className="hint-text">If you skip, a default mix of genres will be used.</p>
-                )}
-              </motion.div>
-            )}
-
-            {step === 2 && (
-              <motion.div key="step2" className="step-content" {...slideProps}>
                 <div className="chip-grid">
                   {LANGUAGES.map(l => (
                     <button

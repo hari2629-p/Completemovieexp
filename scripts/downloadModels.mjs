@@ -15,6 +15,10 @@ const BASE_URL =
   'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model'
 
 const MODEL_FILES = [
+  // SSD Mobilenet V1
+  'ssd_mobilenetv1_model-weights_manifest.json',
+  'ssd_mobilenetv1_model-shard1',
+  'ssd_mobilenetv1_model-shard2',
   // Tiny Face Detector
   'tiny_face_detector_model-weights_manifest.json',
   'tiny_face_detector_model-shard1',

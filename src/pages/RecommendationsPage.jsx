@@ -9,15 +9,20 @@ import { getMoviesByGenres, getTopRatedMovies } from '../services/tmdbService'
 import './RecommendationsPage.css'
 
 const LANG_CODE_MAP = {
-  English: 'en', Hindi: 'hi', Tamil: 'ta', Telugu: 'te',
-  Korean: 'ko', French: 'fr', Spanish: 'es', Japanese: 'ja',
+  Malayalam: 'ml', Tamil: 'ta', Telugu: 'te', Hindi: 'hi', Kannada: 'kn', Marathi: 'mr', Bengali: 'bn',
+  English: 'en', Korean: 'ko', French: 'fr', Spanish: 'es', Japanese: 'ja',
 }
+
+const LOADING_MESSAGES = [
+  'Analyzing your mood...',
+  'Consulting the movie database...',
+  'Curating your personalized recommendations...'
+]
 
 function RecommendationsPage({ preferences, detectedMood }) {
   const navigate = useNavigate()
   const mood = detectedMood || 'neutral'
   const copingStyle = preferences?.coping?.[mood] || 'uplift'
-  const preferredGenres = preferences?.genres || []
   const preferredLanguages = preferences?.languages || ['English']
 
   const [activeLang, setActiveLang] = useState(preferredLanguages[0] || 'English')
@@ -27,13 +32,23 @@ function RecommendationsPage({ preferences, detectedMood }) {
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState(null)
+  const [loadingMsgIdx, setLoadingMsgIdx] = useState(0)
+
+  // Cycle loading messages
+  useEffect(() => {
+    if (!loading) return;
+    const interval = setInterval(() => {
+      setLoadingMsgIdx((prev) => (prev + 1) % LOADING_MESSAGES.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   const fetchMovies = useCallback(async (currentPage, lang, reset = false) => {
     try {
       if (reset) setLoading(true)
       else setLoadingMore(true)
 
-      const genreIds = getGenreIdsForMood(mood, copingStyle, preferredGenres)
+      const genreIds = getGenreIdsForMood(mood, copingStyle)
       let data
 
       try {
@@ -50,7 +65,7 @@ function RecommendationsPage({ preferences, detectedMood }) {
       const results = data.results || []
       const withScores = results.map(m => ({
         ...m,
-        relevanceScore: calcRelevanceScore(m, mood, copingStyle, preferredGenres, preferredLanguages),
+        relevanceScore: calcRelevanceScore(m, mood, copingStyle, preferredLanguages),
       })).sort((a, b) => b.relevanceScore - a.relevanceScore)
 
       setMovies(prev => reset ? withScores : [...prev, ...withScores])
@@ -62,7 +77,7 @@ function RecommendationsPage({ preferences, detectedMood }) {
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [mood, copingStyle, preferredGenres, preferredLanguages])
+  }, [mood, copingStyle, preferredLanguages])
 
   // Initial load / language change
   useEffect(() => {
@@ -149,15 +164,31 @@ function RecommendationsPage({ preferences, detectedMood }) {
 
         {/* ---- Loading Skeleton ---- */}
         {loading && !error && (
-          <div className="recs-loading">
+          <motion.div 
+            className="recs-loading"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
             <LoadingSpinner />
-            <p className="recs-loading-text">Finding your perfect movies…</p>
+            <AnimatePresence mode="wait">
+              <motion.p 
+                key={loadingMsgIdx}
+                className="recs-loading-text"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+              >
+                {LOADING_MESSAGES[loadingMsgIdx]}
+              </motion.p>
+            </AnimatePresence>
             <div className="skeleton-grid">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="skeleton-card shimmer" />
               ))}
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* ---- Movie Grid ---- */}
@@ -188,6 +219,7 @@ function RecommendationsPage({ preferences, detectedMood }) {
                         key={`${movie.id}-${i}`}
                         movie={movie}
                         relevanceScore={movie.relevanceScore}
+                        coping={copingStyle}
                         index={i}
                       />
                     ))}
@@ -222,8 +254,8 @@ function RecommendationsPage({ preferences, detectedMood }) {
 
 // Flag emojis for language tabs
 const LANG_FLAGS = {
-  English: '🇬🇧', Hindi: '🇮🇳', Tamil: '🇮🇳', Telugu: '🇮🇳',
-  Korean: '🇰🇷', French: '🇫🇷', Spanish: '🇪🇸', Japanese: '🇯🇵',
+  Malayalam: '🇮🇳', Tamil: '🇮🇳', Telugu: '🇮🇳', Hindi: '🇮🇳', Kannada: '🇮🇳', Marathi: '🇮🇳', Bengali: '🇮🇳',
+  English: '🇬🇧', Korean: '🇰🇷', French: '🇫🇷', Spanish: '🇪🇸', Japanese: '🇯🇵',
 }
 
 export default RecommendationsPage
