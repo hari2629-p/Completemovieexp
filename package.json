@@ -1,5 +1,6 @@
 {
   "name": "completemovieexp",
+  "description": "A mood-based movie recommendation application.",
   "private": true,
   "version": "1.0.0",
   "type": "module",
