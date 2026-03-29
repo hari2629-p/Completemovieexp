@@ -6,9 +6,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run download-models && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "download-models": "node scripts/downloadModels.mjs"
+  },
+  "engines": {
+    "node": "20.x"
   },
   "dependencies": {
     "@vladmandic/face-api": "^1.7.14",
