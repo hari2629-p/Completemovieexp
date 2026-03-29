@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "deploy-build": "vite build",
+    "build": "node scripts/downloadModels.mjs && node node_modules/vite/bin/vite.js build",
     "preview": "vite preview",
     "download-models": "node scripts/downloadModels.mjs"
   },
