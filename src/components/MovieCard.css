@@ -1,15 +1,13 @@
 .movie-card-wrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 2 / 3.4; /* the grid slot size */
-  perspective: 1000px;
-  z-index: 1;
+  z-index: 1; /* Normal stacking context */
+  display: flex;
+  flex-direction: column;
 }
 
 .movie-card-content {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: relative; /* CRITICAL: Must be relative, NOT absolute, so grid slot gets its height! */
   width: 100%;
   background: var(--bg-surface);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -17,32 +15,25 @@
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform-origin: center top;
-  z-index: 1;
+  z-index: 2; /* Sits cleanly in wrapper */
   overflow: hidden;
   display: flex;
   flex-direction: column;
-}
-
-/* Expanded State */
-.movie-card-content.expanded {
-  transform: scale(1.15); /* Pop out effect */
-  z-index: 50; /* Bring above other cards */
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 20px rgba(139, 92, 246, 0.15);
-  border-color: var(--border-bright);
 }
 
 .card-poster-container {
   position: relative;
   width: 100%;
   aspect-ratio: 2 / 3;
-  flex-shrink: 0;
-  cursor: pointer;
+  overflow: hidden;
+  background-color: var(--bg-card);
 }
 
 .poster-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .poster-fallback {
@@ -51,36 +42,41 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1f2e, #0d1117);
-  font-size: 64px;
+  font-size: 3rem;
+  color: var(--text-muted);
+  background: var(--bg-card);
 }
 
 .poster-overlay {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(15, 23, 42, 1) 0%, rgba(15, 23, 42, 0.7) 40%, transparent 100%);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
+  z-index: 1;
   pointer-events: none;
+  transition: opacity 0.3s;
 }
 
-/* Relevance Badge */
 .relevance-badge {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 12px;
+  right: 12px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  padding: 4px 8px;
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--score-color);
-  border-radius: 8px;
-  padding: 6px 10px;
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--score-color) 40%, transparent);
-  z-index: 3;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 10;
+  transition: all 0.3s;
 }
 
 .relevance-score {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   color: var(--score-color);
   line-height: 1;
@@ -88,132 +84,190 @@
 
 .relevance-label {
   font-size: 8px;
-  font-weight: 600;
-  color: var(--score-color);
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  opacity: 0.8;
+  color: var(--text-muted);
+  margin-top: 1px;
 }
 
-/* Base Info (Title embedded in overlay) */
 .card-info-base {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   padding: 16px;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  z-index: 5;
+  transition: all 0.3s;
 }
 
 .card-title {
-  font-size: 18px;
-  font-weight: 800;
+  font-size: 1.1rem;
+  font-weight: 700;
   color: #ffffff;
-  line-height: 1.15;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  margin: 0;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .card-meta {
   display: flex;
   align-items: center;
   gap: 6px;
-}
-
-.card-year {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
-.card-dot {
-  color: var(--text-muted);
-  font-size: 10px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .card-rating {
-  font-size: 12px;
+  color: #fbbf24;
   font-weight: 600;
-  color: var(--yellow);
 }
 
-/* Dropdown Panel */
-.card-dropdown-panel {
-  padding: 14px 16px 18px;
-  background: var(--bg-surface);
+/* Expanded State (Horizontal Billboard override) - Wrapper level styling */
+.movie-card-wrapper.is-expanded-wrapper {
+  z-index: 9999 !important; /* Force above ALL other Framer motion elements */
+  isolation: isolate; /* Create new master stacking context */
+}
+
+/* The untouched poster container when expanded gets a subtle shadow/border change */
+.movie-card-wrapper.is-expanded-wrapper .movie-card-content {
+  box-shadow: none; /* Let the combined shape or wrapper hold the aesthetic */
+  border-radius: var(--radius-md); /* Keep it looking sharp */
+  z-index: 51; /* Keep poster above the panel shadow if any */
+}
+
+/* Adjust poster border radius depending on side to seamlessly merge with the side panel */
+.movie-card-wrapper.is-expanded-wrapper.expand-right .movie-card-content {
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+.movie-card-wrapper.is-expanded-wrapper.expand-left .movie-card-content {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+/* Hide overlapping standard text on the poster when expanded */
+.movie-card-wrapper.is-expanded-wrapper .relevance-badge,
+.movie-card-wrapper.is-expanded-wrapper .card-info-base,
+.movie-card-wrapper.is-expanded-wrapper .poster-overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ========================================================
+   NEW SIDE PANEL (Horizontal Expansion)
+   ======================================================== */
+
+.card-side-panel {
+  position: absolute;
+  top: 0;
+  width: 220%; /* 2.2x the poster width */
+  height: 100%;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  border-top: 1px solid rgba(255,255,255,0.05);
+  justify-content: flex-start;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 1), rgba(15, 23, 42, 0.98));
+  overflow: hidden;
+  z-index: 50;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  /* Slide in slightly for polish */
+  animation: slidePanelIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  opacity: 0;
 }
 
-/* Actions Row */
-.card-actions-row {
+@keyframes slidePanelIn {
+  from { opacity: 0; transform: translateX(10px) scale(0.98); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* Directional logic attached directly to the side panel absolute positioning */
+.card-side-panel.expand-right {
+  left: 99%; /* Just slightly overlapping the poster border */
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-left: none;
+}
+
+.card-side-panel.expand-left {
+  right: 99%;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  border-right: none;
+}
+
+/* Typography matching concept */
+.panel-header {
   display: flex;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.25rem;
 }
 
-.action-btn {
-  flex: 1;
+.panel-title {
+  font-size: 2.2rem;
+  font-weight: 300; /* Thin font from concept */
+  color: var(--text-light);
+  line-height: 1.1;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.panel-close-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 4px;
-  font-size: 13px;
-  border-radius: 6px;
-  transition: all 0.2s;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+.panel-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
 }
 
-.shrink-btn {
-  flex: 0 0 auto;
-  padding: 10px 14px;
-}
-
-/* Detailed Meta */
-.card-detailed-meta {
+/* Internal Meta Data row */
+.panel-meta-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 13px;
-  font-weight: 600;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+.panel-meta-row.secondary {
+  margin-bottom: 1.2rem;
 }
 
-.meta-year, .meta-runtime {
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-/* Genres */
-.card-genres {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.genre-pill {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 3px 8px;
+.meta-lang {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 2px 6px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
 }
 
-/* Synopsis */
-.card-synopsis {
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  margin: 0;
+.meta-dot {
+  opacity: 0.5;
+  font-size: 0.7rem;
+}
+
+.meta-match {
+  font-weight: 700;
+}
+
+.panel-synopsis {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  flex: 1; /* Pushes watch area down */
+  margin: 0 0 1rem 0;
   display: -webkit-box;
   -webkit-line-clamp: 4;
   line-clamp: 4;
@@ -221,18 +275,43 @@
   overflow: hidden;
 }
 
+/* Watch Actions */
+.panel-actions {
+  margin-bottom: 1rem;
+}
+
+.watch-btn {
+  background: #38bdf8; /* Concept blue base */
+  color: #0f172a;
+  padding: 0.6rem 1.25rem;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: lowercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: none;
+}
+.watch-btn:hover {
+  background: #7dd3fc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+}
+
 /* OTT Mini */
-.card-providers-mini {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 6px;
-  padding: 6px 10px;
-  margin-top: 4px;
+.panel-providers {
+  border-top: 1px solid rgba(255, 255, 255, 0.08); /* VERY SUBTLE LINE ABOVE OTT */
+  padding-top: 0.75rem;
+  display: flex;
+  align-items: center;
 }
 
 .providers-list-mini {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 6px;
 }
 
@@ -243,9 +322,51 @@
 }
 
 .provider-logo-mini {
-  width: 20px;
-  height: 20px;
+  width: 28px;
+  height: 28px;
   border-radius: 4px;
-  object-fit: cover;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  object-fit: contain;
+  transition: transform 0.2s;
+}
+
+.provider-logo-mini:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+/* ========================================================
+   MOBILE FALLBACK (TAP TO EXPAND)
+   ======================================================== */
+@media (max-width: 768px) {
+  .movie-card-wrapper.is-expanded-wrapper {
+    z-index: 50;
+  }
+  
+  .movie-card-wrapper.is-expanded-wrapper .movie-card-content {
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    transform: scale(1.02); /* Gentle pop */
+  }
+
+  /* Don't hide title and match badge on mobile since they sit on the poster */
+  .movie-card-wrapper.is-expanded-wrapper .card-info-base {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .card-side-panel {
+    position: relative; /* Stacks vertically down instead of absolutely right/left */
+    width: 100%; /* Match width perfectly */
+    left: 0;
+    border-radius: 0 0 var(--radius-md) var(--radius-md) !important;
+    border: none !important;
+    animation: none;
+    opacity: 1;
+    transform: none;
+    height: auto;
+    box-shadow: none;
+  }
+  
+  .panel-title {
+    font-size: 1.5rem;
+  }
 }

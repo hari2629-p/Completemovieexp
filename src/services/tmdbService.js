@@ -18,7 +18,7 @@ export async function getMoviesByGenres({ genreIds, language = 'en', page = 1 })
   const originalLang = ISO_LANG_CODES[language] || 'en'
   const { data } = await tmdb.get('/discover/movie', {
     params: {
-      with_genres: genreIds.join(','), // AND logic: MUST have all target genres
+      with_genres: genreIds.join('|'), // OR logic: Allows fallback for smaller regional industries
       language: 'en-US', // Always fetch English titles & overviews
       with_original_language: originalLang, // Filter by regional industry
       sort_by: 'popularity.desc',
@@ -83,9 +83,14 @@ export async function getMovieDetailedInfo(movieId) {
     }
   })
   
+  const providersIN = data['watch/providers']?.results?.IN || null;
+  const providersUS = data['watch/providers']?.results?.US || null;
+  const providers = providersIN || providersUS;
+
   return {
     runtime: data.runtime,
-    watchProviders: data['watch/providers']?.results?.IN || data['watch/providers']?.results?.US || null,
+    watchProviders: providers,
+    tmdbLink: providers?.link || `https://www.themoviedb.org/movie/${movieId}/watch`,
     reviews: data.reviews?.results || [],
     overview: data.overview
   }
