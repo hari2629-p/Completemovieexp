@@ -36,13 +36,15 @@ function LandingPage({ preferences }) {
             </div>
 
             <h1 className="hero-title">
-              Movies That Match<br />
-              <span className="gradient-text">How You Feel</span>
+              MOODFLIX 🎬
             </h1>
 
             <p className="hero-subtitle">
-              MoodFlick uses your camera to detect your emotion and recommends
-              the perfect film to match or uplift your mood — personalized just for you.
+              <strong className="gradient-text" style={{fontSize: '1.25rem', display: 'block', marginBottom: '10px'}}>
+                Movies that understand your mood.
+              </strong>
+              Uses your camera to detect your emotion and recommends
+              the perfect film to match or uplift your vibe — personalized just for you.
             </p>
 
             <div className="hero-actions">
@@ -52,7 +54,7 @@ function LandingPage({ preferences }) {
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
               >
-                {preferences ? '🎭 Detect My Mood' : '🚀 Get Started'}
+                {preferences ? '🎭 Start Experience' : '🚀 Start Experience'}
               </motion.button>
               {preferences && (
                 <button
@@ -138,7 +140,7 @@ function LandingPage({ preferences }) {
             <h2>Ready to find your perfect movie?</h2>
             <p>It only takes 30 seconds to set up your preferences and start detecting.</p>
             <button className="btn btn-primary" onClick={handleStart}>
-              {preferences ? '🎭 Start Detecting' : '🚀 Get Started Free'}
+              {preferences ? '🎭 Start Experience' : '🚀 Start Experience'}
             </button>
           </motion.div>
         </div>

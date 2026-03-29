@@ -24,35 +24,40 @@ export const GENRES = {
   Western: 37,
 }
 
-// Emotion → Genre names  (uplift = feel better, match = mirror current mood)
+export const GENRE_NAMES = Object.keys(GENRES).reduce((acc, key) => {
+  acc[GENRES[key]] = key
+  return acc
+}, {})
+
+// Emotion → Exact 2-genre thematic pairs (for strict AND logic)
 const EMOTION_GENRE_MAP = {
   happy: {
-    uplift: ['Comedy', 'Adventure', 'Animation', 'Music'],
-    match:  ['Comedy', 'Action', 'Adventure', 'Romance'],
+    uplift: ['Comedy', 'Family'], // Family Comedies
+    match:  ['Comedy', 'Romance'], // Rom-Coms
   },
   sad: {
-    uplift: ['Comedy', 'Animation', 'Family', 'Music', 'Adventure'],
-    match:  ['Drama', 'Romance', 'Music'],
+    uplift: ['Comedy', 'Adventure'], // Fun adventure distractions
+    match:  ['Drama', 'Romance'], // Romantic dramas (cathartic)
   },
   angry: {
-    uplift: ['Comedy', 'Animation', 'Adventure', 'Fantasy'],
-    match:  ['Action', 'Crime', 'Thriller'],
+    uplift: ['Comedy', 'Action'], // Action Comedies (fun release)
+    match:  ['Action', 'Thriller'], // Intense Action Thrillers
   },
   surprised: {
-    uplift: ['Comedy', 'Adventure', 'Mystery'],
-    match:  ['Thriller', 'Mystery', 'Sci-Fi'],
+    uplift: ['Adventure', 'Fantasy'], // Exciting Fantasy
+    match:  ['Mystery', 'Thriller'], // Suspense/Mystery
   },
   fearful: {
-    uplift: ['Animation', 'Comedy', 'Family', 'Adventure'],
-    match:  ['Horror', 'Thriller', 'Mystery'],
+    uplift: ['Comedy', 'Animation'], // Comforting animations
+    match:  ['Horror', 'Thriller'], // Pure horror/suspense
   },
   disgusted: {
-    uplift: ['Comedy', 'Documentary', 'Animation'],
-    match:  ['Drama', 'Documentary'],
+    uplift: ['Comedy', 'Romance'], // Lighthearted rom-coms
+    match:  ['Drama', 'Mystery'], // Grounded dramatic mysteries
   },
   neutral: {
-    uplift: ['Action', 'Adventure', 'Sci-Fi', 'Fantasy'],
-    match:  ['Drama', 'Thriller', 'Mystery', 'Documentary'],
+    uplift: ['Action', 'Adventure'], // Big Action/Adventure blockbusters
+    match:  ['Drama', 'Thriller'], // Engaging dramatic thrillers
   },
 }
 
@@ -94,7 +99,7 @@ export function getGenreIdsForMood(emotion, copingStyle) {
     .map(name => GENRES[name])
     .filter(Boolean)
 
-  return ids.slice(0, 5) // TMDB works best with ≤5 genre filters
+  return ids.slice(0, 2) // We use exactly 2 for strict AND matching
 }
 
 /**
@@ -116,7 +121,7 @@ export function calcRelevanceScore(movie, emotion, copingStyle, preferredLanguag
 
   // -- Genre overlap with mood genres (up to +40)
   const moodMatches = movieGenreIds.filter(id => moodGenreIds.includes(id)).length
-  score += Math.min(moodMatches * 15, 40)
+  score += Math.min(moodMatches * 20, 40)
 
   // -- Language match (up to +10)
   const LANG_CODE_MAP = {

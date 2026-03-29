@@ -33,19 +33,22 @@
 }
 
 .hero-title {
-  font-size: clamp(40px, 6vw, 72px);
+  font-size: clamp(60px, 9vw, 100px);
   font-weight: 900;
-  line-height: 1.08;
-  margin-bottom: 24px;
-  color: var(--text-primary);
+  line-height: 1.05;
+  letter-spacing: -3px;
+  margin-bottom: 32px;
+  color: #ffffff;
+  text-shadow: 0 10px 40px rgba(0,0,0,0.6);
 }
 
 .hero-subtitle {
-  font-size: 18px;
+  font-size: 20px;
+  font-weight: 400;
   color: var(--text-secondary);
   line-height: 1.7;
-  margin-bottom: 40px;
-  max-width: 520px;
+  margin-bottom: 48px;
+  max-width: 600px;
 }
 
 .hero-actions {

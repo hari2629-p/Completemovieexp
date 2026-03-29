@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { IMAGE_BASE, getMovieReviews } from '../services/tmdbService'
+import { GENRE_NAMES } from '../services/emotionMapper'
 import './MovieCard.css'
 
 function MovieCard({ movie, relevanceScore, coping, index = 0 }) {
@@ -82,6 +83,12 @@ function MovieCard({ movie, relevanceScore, coping, index = 0 }) {
             </div>
             <span className="card-rating">{rating}</span>
           </div>
+          <div className="card-genres">
+            {movie.genre_ids?.slice(0, 3).map(id => {
+              const name = GENRE_NAMES[id]
+              return name ? <span key={id} className="genre-pill">{name}</span> : null
+            })}
+          </div>
           <p className="card-overview">{shortOverview}</p>
           <span className="card-hint">Tap for details →</span>
         </div>
@@ -108,8 +115,10 @@ function MovieCard({ movie, relevanceScore, coping, index = 0 }) {
               <span className="score-number">{relevanceScore}%</span>
             </div>
             <p className="score-text">
-              We think this is an <strong>{relevanceScore}%</strong> match to{' '}
-              {coping === 'uplift' ? 'help uplift your spirits right now 💙' : 'resonate with how you\'re feeling 🪞'}
+              <strong>{relevanceScore}% match</strong> for your mood<br/>
+              <span style={{opacity: 0.8, fontSize: '0.9em', display: 'inline-block', marginTop: '4px'}}>
+                * {coping === 'uplift' ? 'This movie may help uplift your mood' : 'This movie may resonate with your mood'}
+              </span>
             </p>
           </div>
           
@@ -147,15 +156,28 @@ function MovieCard({ movie, relevanceScore, coping, index = 0 }) {
             <span>⭐ {rating}/10</span>
           </div>
 
-          <a
-            href={`https://www.themoviedb.org/movie/${movie.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-primary tmdb-link"
-            onClick={e => e.stopPropagation()}
-          >
-            View on TMDB ↗
-          </a>
+          <div style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
+            <a
+              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(`${movie.title} ${releaseYear} trailer`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary"
+              style={{ flex: 1, justifyContent: 'center', fontSize: '13px', padding: '10px' }}
+              onClick={e => e.stopPropagation()}
+            >
+              Watch Trailer 🎥
+            </a>
+            <button
+              className="btn btn-secondary"
+              style={{ flex: 1, justifyContent: 'center', fontSize: '13px', padding: '10px' }}
+              onClick={(e) => {
+                e.stopPropagation()
+                setFlipped(false)
+              }}
+            >
+              Try Another 🔄
+            </button>
+          </div>
         </div>
       </div>
     </motion.div>

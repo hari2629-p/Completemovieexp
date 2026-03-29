@@ -39,6 +39,7 @@ function DetectorPage({ onMoodDetected }) {
   const [liveEmotion, setLiveEmotion] = useState(null)
   const [confidence, setConfidence] = useState(0)
   const [confirmed, setConfirmed] = useState(null)
+  const [cameraName, setCameraName] = useState('')
 
   // Load face-api models
   useEffect(() => {
@@ -46,7 +47,7 @@ function DetectorPage({ onMoodDetected }) {
     async function loadModels() {
       try {
         await Promise.all([
-          faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+          faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
           faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
         ])
         if (!cancelled) setModelsLoaded(true)
@@ -81,10 +82,10 @@ function DetectorPage({ onMoodDetected }) {
         })
         if (cancelled) { stream.getTracks().forEach(t => t.stop()); return }
         streamRef.current = stream
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-          await videoRef.current.play()
-        }
+
+        const track = stream.getVideoTracks()[0]
+        if (track) setCameraName(track.label)
+
         setPhase('camera')
       } catch (err) {
         if (!cancelled) {
@@ -100,6 +101,18 @@ function DetectorPage({ onMoodDetected }) {
     }
   }, [modelsLoaded, stopCamera])
 
+  // Connect stream to video element when it mounts
+  useEffect(() => {
+    if (phase === 'camera' && videoRef.current && streamRef.current) {
+      if (videoRef.current.srcObject !== streamRef.current) {
+        videoRef.current.srcObject = streamRef.current
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current.play().catch(e => console.warn('Video play error:', e))
+        }
+      }
+    }
+  }, [phase])
+
   const confirmMood = useCallback((mood) => {
     stopCamera()
     setConfirmed(mood)
@@ -114,7 +127,7 @@ function DetectorPage({ onMoodDetected }) {
     if (!video || !canvas || video.paused || video.ended || !modelsLoaded) return
 
     const result = await faceapi
-      .detectSingleFace(video, new faceapi.SsdMobilenetv1Options())
+      .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
       .withFaceExpressions()
 
     const ctx = canvas.getContext('2d')
@@ -230,10 +243,10 @@ function DetectorPage({ onMoodDetected }) {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <LoadingSpinner />
-              <p className="loading-text">Loading AI models & initializing camera…</p>
-              <p style={{ fontSize: '0.85rem', opacity: 0.7, marginTop: '8px' }}>
-                This may take a few seconds on your first visit.
+              <LoadingSpinner message="Initializing AI Models..." />
+              <p className="loading-subtext">Preparing neural networks for emotion analysis...</p>
+              <p style={{ fontSize: '0.85rem', opacity: 0.6, marginTop: '12px' }}>
+                This one-time setup ensures all processing happens privately in your browser.
               </p>
             </motion.div>
           )}
@@ -277,6 +290,12 @@ function DetectorPage({ onMoodDetected }) {
 
                 {/* Actions */}
                 <div className="camera-actions">
+                  {cameraName && (
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', marginBottom: '8px', lineHeight: '1.4' }}>
+                      📷 Captured Video Device: <br/><strong style={{color: 'var(--text-primary)'}}>{cameraName}</strong>
+                      <br/>(If the screen is black, please check your camera's privacy shield or virtual camera settings)
+                    </div>
+                  )}
                   <motion.button
                     className="btn btn-primary confirm-btn"
                     disabled={!liveEmotion}

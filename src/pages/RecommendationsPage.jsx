@@ -14,9 +14,9 @@ const LANG_CODE_MAP = {
 }
 
 const LOADING_MESSAGES = [
+  'Finding the perfect movie for you...',
   'Analyzing your mood...',
   'Consulting the movie database...',
-  'Curating your personalized recommendations...'
 ]
 
 function RecommendationsPage({ preferences, detectedMood }) {

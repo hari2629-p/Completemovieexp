@@ -15,13 +15,12 @@ export const IMAGE_BASE_ORIGINAL = 'https://image.tmdb.org/t/p/original'
  * Fetch movies by genre IDs with optional language filter
  */
 export async function getMoviesByGenres({ genreIds, language = 'en', page = 1 }) {
-  const langCode = LANGUAGE_CODES[language] || 'en-US'
   const originalLang = ISO_LANG_CODES[language] || 'en'
   const { data } = await tmdb.get('/discover/movie', {
     params: {
-      with_genres: genreIds.join('|'),
-      language: langCode,
-      with_original_language: originalLang,
+      with_genres: genreIds.join(','), // AND logic: MUST have all target genres
+      language: 'en-US', // Always fetch English titles & overviews
+      with_original_language: originalLang, // Filter by regional industry
       sort_by: 'popularity.desc',
       'vote_count.gte': 10,
       page,
@@ -34,9 +33,15 @@ export async function getMoviesByGenres({ genreIds, language = 'en', page = 1 })
  * Fetch top-rated movies as fallback
  */
 export async function getTopRatedMovies({ language = 'en', page = 1 }) {
-  const langCode = LANGUAGE_CODES[language] || 'en-US'
-  const { data } = await tmdb.get('/movie/top_rated', {
-    params: { language: langCode, page },
+  const originalLang = ISO_LANG_CODES[language] || 'en'
+  const { data } = await tmdb.get('/discover/movie', {
+    params: { 
+      language: 'en-US', // Always English metadata
+      with_original_language: originalLang, // Filter by regional industry
+      sort_by: 'vote_average.desc',
+      'vote_count.gte': 150,
+      page 
+    },
   })
   return data
 }
@@ -63,9 +68,9 @@ export async function getMovieReviews(movieId) {
  * Search movies by query
  */
 export async function searchMovies(query, language = 'en') {
-  const langCode = LANGUAGE_CODES[language] || 'en-US'
+  // Always fetch English metadata for search
   const { data } = await tmdb.get('/search/movie', {
-    params: { query, language: langCode },
+    params: { query, language: 'en-US' },
   })
   return data
 }
