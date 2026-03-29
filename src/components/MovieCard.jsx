@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { IMAGE_BASE, getMovieReviews } from '../services/tmdbService'
+import { IMAGE_BASE, getMovieReviews, getMovieWatchProviders } from '../services/tmdbService'
 import { GENRE_NAMES } from '../services/emotionMapper'
 import './MovieCard.css'
 
@@ -9,23 +9,37 @@ function MovieCard({ movie, relevanceScore, coping, index = 0 }) {
   const [imgError, setImgError] = useState(false)
   const [review, setReview] = useState(null)
   const [loadingReview, setLoadingReview] = useState(false)
+  const [providers, setProviders] = useState(null)
+  const [loadingProviders, setLoadingProviders] = useState(false)
 
-  // Fetch review when card is flipped for the first time
+  // Fetch review and providers when card is flipped for the first time
   useEffect(() => {
-    if (flipped && !review && !loadingReview) {
-      setLoadingReview(true)
-      getMovieReviews(movie.id)
-        .then(res => {
-          if (res && res.length > 0) {
-            setReview(res[0]) // Get top review
-          } else {
-            setReview({ empty: true })
-          }
-        })
-        .catch(() => setReview({ empty: true }))
-        .finally(() => setLoadingReview(false))
+    if (flipped) {
+      if (!review && !loadingReview) {
+        setLoadingReview(true)
+        getMovieReviews(movie.id)
+          .then(res => {
+            if (res && res.length > 0) {
+              setReview(res[0]) // Get top review
+            } else {
+              setReview({ empty: true })
+            }
+          })
+          .catch(() => setReview({ empty: true }))
+          .finally(() => setLoadingReview(false))
+      }
+
+      if (!providers && !loadingProviders) {
+        setLoadingProviders(true)
+        getMovieWatchProviders(movie.id)
+          .then(res => {
+            setProviders(res || { empty: true })
+          })
+          .catch(() => setProviders({ empty: true }))
+          .finally(() => setLoadingProviders(false))
+      }
     }
-  }, [flipped, movie.id, review, loadingReview])
+  }, [flipped, movie.id, review, loadingReview, providers, loadingProviders])
 
 
   const posterUrl = movie.poster_path && !imgError
@@ -148,6 +162,27 @@ function MovieCard({ movie, relevanceScore, coping, index = 0 }) {
               </>
             ) : (
               <p className="review-loading">No reviews yet, but it might be just what you need! ✨</p>
+            )}
+          </div>
+
+          <div className="card-providers">
+            {loadingProviders ? (
+              <p className="provider-loading" style={{ fontSize: '0.8rem', color: 'var(--text-subtle)', margin: '4px 0' }}>Checking availability...</p>
+            ) : providers && !providers.empty ? (
+              <div className="providers-list">
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-subtle)', marginRight: '8px' }}>Watch on:</span>
+                {(providers.flatrate || providers.rent || providers.buy || []).slice(0, 4).map(provider => (
+                  <img
+                    key={provider.provider_id}
+                    src={`${IMAGE_BASE}${provider.logo_path}`}
+                    alt={provider.provider_name}
+                    title={provider.provider_name}
+                    className="provider-logo"
+                  />
+                ))}
+              </div>
+            ) : providers?.empty && (
+              <p className="provider-loading" style={{ fontSize: '0.8rem', color: 'var(--text-subtle)', margin: '4px 0' }}>Not streaming locally</p>
             )}
           </div>
 

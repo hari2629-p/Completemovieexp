@@ -65,6 +65,15 @@ export async function getMovieReviews(movieId) {
 }
 
 /**
+ * Fetch movie watch providers (OTT streaming platforms)
+ */
+export async function getMovieWatchProviders(movieId) {
+  const { data } = await tmdb.get(`/movie/${movieId}/watch/providers`)
+  // Default to IN (India) data, fallback to US if empty, or just return IN
+  return data.results?.IN || data.results?.US || null
+}
+
+/**
  * Search movies by query
  */
 export async function searchMovies(query, language = 'en') {
